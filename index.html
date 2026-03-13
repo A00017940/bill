@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Invader</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container" data-testid="game-container">
+    <canvas id="canvas" data-testid="game-canvas"></canvas>
+    <div id="hud" data-testid="hud">
+      <div id="hud-left" data-testid="hud-left">
+        <span id="score-display" data-testid="score-display">Score: 0</span>
+        <span id="lives-display" data-testid="lives-display">Lives: 3</span>
+      </div>
+      <div id="hud-center" data-testid="hud-center">
+        <span id="level-display" data-testid="level-display">Level: 1</span>
+      </div>
+      <div id="hud-right" class="hidden" data-testid="hud-right">
+        <span id="p2-score-display" data-testid="p2-score-display">P2 Score: 0</span>
+        <span id="p2-lives-display" data-testid="p2-lives-display">P2: 3</span>
+      </div>
+    </div>
+    <div id="start-screen" class="overlay" data-testid="start-screen">
+      <div class="overlay-content">
+        <pre class="title-art">
+ ____  ____   __    ___  ____
+/ ___)(  _ \ / _\  / __)(  __)
+\___ \ ) __//    \( (__  ) _)
+(____/(__)  \_/\_/ \___)(____)
+ __  __ _  _  _   __   ____  ____  ____
+(  )(  ( \/ )( \ / _\ (    \(  __)(  _ \
+ )( /    /\ \/ //    \ ) D ( ) _)  )   /
+(__)\_)__) \__/ \_/\_/(____/(____)(__\_)
+        </pre>
+        <p class="mode-prompt">Select Mode</p>
+        <p class="mode-option blink" data-testid="mode-1p">Press 1 — Single Player</p>
+        <p class="mode-option blink" data-testid="mode-2p">Press 2 — Two Players</p>
+      </div>
+    </div>
+    <div id="game-over-screen" class="overlay hidden" data-testid="game-over-screen">
+      <div class="overlay-content">
+        <pre class="title-art">
+  ___   __   _  _  ____
+ / __) / _\ ( \/ )(  __)
+( (_ \/    \/ \/ \ ) _)
+ \___/\_/\_/\_)(_/(____)
+  __  _  _  ____  ____
+ /  \/ )( \(  __)(  _ \
+(  O )\ \/ / ) _)  )   /
+ \__/  \__/ (____)(__\_)
+        </pre>
+        <p id="final-score" data-testid="final-score">Final Score: 0</p>
+        <p class="blink">Press ENTER to Restart</p>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

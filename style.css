@@ -1,0 +1,116 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  overflow: hidden;
+  font-family: 'Courier New', Courier, monospace;
+  color: #0f0;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  font-size: 18px;
+  color: #0f0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud-left, #hud-right {
+  display: flex;
+  gap: 20px;
+  min-width: 200px;
+}
+
+#hud-left {
+  justify-content: flex-start;
+}
+
+#hud-right {
+  justify-content: flex-end;
+}
+
+#hud-center {
+  text-align: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 20;
+}
+
+.overlay.hidden {
+  display: none !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.overlay-content {
+  text-align: center;
+  color: #0f0;
+}
+
+.title-art {
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  color: #0f0;
+}
+
+.overlay-content p {
+  font-size: 18px;
+  margin-top: 12px;
+}
+
+.mode-prompt {
+  font-size: 22px;
+  color: #0f0;
+  margin-bottom: 8px;
+}
+
+.mode-option {
+  font-size: 18px;
+  color: #0f0;
+}
+
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+#final-score {
+  font-size: 24px;
+  color: #0f0;
+}
