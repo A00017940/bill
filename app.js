@@ -51,70 +51,125 @@ window.addEventListener('keyup', e => { keys[e.code] = false; });
 const PLAYER_SPEED = 5;
 const BULLET_SPEED = 7;
 const ALIEN_BULLET_SPEED = 4;
-const CHAR_W = 12;
-const CHAR_H = 16;
+const PX = 4; // pixel size for sprites
 
-// ── ASCII Art ──
-const SHIP_ART_P1 = [
-  '  /\\  ',
-  ' /  \\ ',
-  '/----\\',
-  '|    |',
-  '^^^^^^'
-];
-
-const SHIP_ART_P2 = [
-  '  <>  ',
-  ' [  ] ',
-  '{----}',
-  '|    |',
-  '~~~~~~'
+// ── Pixel Sprites (2D arrays: 1 = filled, 0 = empty) ──
+const SHIP_P1 = [
+  [0,0,0,0,0,1,0,0,0,0,0],
+  [0,0,0,0,1,1,1,0,0,0,0],
+  [0,0,0,0,1,1,1,0,0,0,0],
+  [0,0,0,1,1,1,1,1,0,0,0],
+  [0,0,1,1,1,1,1,1,1,0,0],
+  [0,1,1,1,1,1,1,1,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,1,1,1,1,1,1,1,0,1],
 ];
 
-const ALIEN_ART_A1 = [
-  ' {@@} ',
-  '//||\\\\',
-  ' \\  / '
-];
-const ALIEN_ART_A2 = [
-  ' {@@} ',
-  '/ || \\',
-  ' /  \\ '
-];
-
-const ALIEN_ART_B1 = [
-  ' <**> ',
-  '/|  |\\',
-  ' /  \\ '
-];
-const ALIEN_ART_B2 = [
-  ' <**> ',
-  '\\|  |/',
-  ' \\  / '
+const SHIP_P2 = [
+  [0,0,0,0,0,1,0,0,0,0,0],
+  [0,0,0,0,1,1,1,0,0,0,0],
+  [0,0,0,1,0,1,0,1,0,0,0],
+  [0,0,1,1,1,1,1,1,1,0,0],
+  [0,1,0,1,1,1,1,1,0,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,1,1,1,1,1,1,1,0,1],
+  [1,0,1,0,0,0,0,0,1,0,1],
+  [0,0,1,0,0,0,0,0,1,0,0],
 ];
 
-const EXPLOSION_FRAMES = [
+const ALIEN_A1 = [
+  [0,0,1,0,0,0,0,0,1,0,0],
+  [0,0,0,1,0,0,0,1,0,0,0],
+  [0,0,1,1,1,1,1,1,1,0,0],
+  [0,1,1,0,1,1,1,0,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,1,1,1,1,1,1,1,0,1],
+  [1,0,1,0,0,0,0,0,1,0,1],
+  [0,0,0,1,1,0,1,1,0,0,0],
+];
+
+const ALIEN_A2 = [
+  [0,0,1,0,0,0,0,0,1,0,0],
+  [0,0,0,1,0,0,0,1,0,0,0],
+  [0,0,1,1,1,1,1,1,1,0,0],
+  [0,1,1,0,1,1,1,0,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,1,1,1,1,1,1,1,0,1],
+  [1,0,1,0,0,0,0,0,1,0,1],
+  [0,1,0,0,0,0,0,0,0,1,0],
+];
+
+const ALIEN_B1 = [
+  [0,0,0,0,1,1,1,0,0,0,0],
+  [0,1,1,1,1,1,1,1,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,0,1,0,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [0,0,0,1,0,0,0,1,0,0,0],
+  [0,0,1,0,1,0,1,0,1,0,0],
+  [1,1,0,0,0,0,0,0,0,1,1],
+];
+
+const ALIEN_B2 = [
+  [0,0,0,0,1,1,1,0,0,0,0],
+  [0,1,1,1,1,1,1,1,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,0,0,1,0,0,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1],
+  [0,0,1,0,1,0,1,0,1,0,0],
+  [0,1,0,1,0,0,0,1,0,1,0],
+  [0,0,1,0,0,0,0,0,1,0,0],
+];
+
+const EXPLODE_FRAMES = [
+  // Frame 0: small spark
   [
-    '  *  ',
-    ' * * ',
-    '  *  '
+    [0,0,0,0,1,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,0,1,0,0,0],
+    [0,0,0,0,1,0,0,0,0],
+    [0,0,0,1,0,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0],
   ],
+  // Frame 1: expanding
   [
-    '\\* */',
-    '* * *',
-    '/* *\\'
+    [1,0,0,0,0,0,0,0,1],
+    [0,0,0,0,1,0,0,0,0],
+    [0,0,1,0,0,0,1,0,0],
+    [0,0,0,0,1,0,0,0,0],
+    [0,0,1,0,0,0,1,0,0],
+    [0,0,0,0,1,0,0,0,0],
+    [1,0,0,0,0,0,0,0,1],
   ],
+  // Frame 2: full burst
   [
-    '\\|*|/',
-    '-***-',
-    '/|*|\\'
+    [1,0,0,1,0,1,0,0,1],
+    [0,0,1,0,0,0,1,0,0],
+    [0,1,0,0,1,0,0,1,0],
+    [1,0,0,1,0,1,0,0,1],
+    [0,1,0,0,1,0,0,1,0],
+    [0,0,1,0,0,0,1,0,0],
+    [1,0,0,1,0,1,0,0,1],
   ],
+  // Frame 3: fading dots
   [
-    ' . . ',
-    '. . .',
-    ' . . '
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0],
+    [0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,1,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
   ]
 ];
+
+// Sprite dimensions (in pixels, for collision boxes)
+const SHIP_W = SHIP_P1[0].length * PX;
+const SHIP_H = SHIP_P1.length * PX;
+const ALIEN_W = ALIEN_A1[0].length * PX;
+const ALIEN_H = ALIEN_A1.length * PX;
 
 // ── Entity Factories ──
 function createPlayer(playerNum) {
@@ -122,10 +177,10 @@ function createPlayer(playerNum) {
     ? (playerNum === 1 ? canvas.width / 3 : canvas.width * 2 / 3)
     : canvas.width / 2;
   return {
-    x: offset - (CHAR_W * 3),
+    x: offset - (SHIP_W / 2),
     y: canvas.height - 70,
-    w: CHAR_W * 6,
-    h: CHAR_H * SHIP_ART_P1.length,
+    w: SHIP_W,
+    h: SHIP_H,
     cooldown: 0,
     alive: true,
     exploding: 0,
@@ -137,8 +192,8 @@ function createAlienGrid() {
   const grid = [];
   const cols = 8;
   const rows = 4;
-  const spacingX = CHAR_W * 8;
-  const spacingY = CHAR_H * 5;
+  const spacingX = ALIEN_W + 24;
+  const spacingY = ALIEN_H + 20;
   const startX = (canvas.width - cols * spacingX) / 2 + spacingX / 2;
   const startY = 60;
   for (let r = 0; r < rows; r++) {
@@ -146,8 +201,8 @@ function createAlienGrid() {
       grid.push({
         x: startX + c * spacingX,
         y: startY + r * spacingY,
-        w: CHAR_W * 6,
-        h: CHAR_H * 3,
+        w: ALIEN_W,
+        h: ALIEN_H,
         alive: true,
         type: r < 2 ? 'A' : 'B',
         points: r < 2 ? 20 : 10,
@@ -220,7 +275,7 @@ function updatePlayer(p, leftKey, rightKey, shootKey, bullets) {
         const offset = numPlayers === 2
           ? (p.num === 1 ? canvas.width / 3 : canvas.width * 2 / 3)
           : canvas.width / 2;
-        p.x = offset - (CHAR_W * 3);
+        p.x = offset - (SHIP_W / 2);
       } else {
         p.alive = false;
       }
@@ -233,7 +288,7 @@ function updatePlayer(p, leftKey, rightKey, shootKey, bullets) {
 
   if (p.cooldown > 0) p.cooldown--;
   if (keys[shootKey] && p.cooldown === 0) {
-    bullets.push({ x: p.x + p.w / 2 - 2, y: p.y - 4, w: 4, h: CHAR_H, owner: p.num });
+    bullets.push({ x: p.x + p.w / 2 - 2, y: p.y - 4, w: 4, h: 10, owner: p.num });
     p.cooldown = 15;
   }
 }
@@ -265,7 +320,7 @@ function update() {
   if (hitEdge) {
     alienDir *= -1;
     for (const a of aliveAliens) {
-      a.y += CHAR_H * 2;
+      a.y += ALIEN_H;
     }
   }
 
@@ -275,7 +330,7 @@ function update() {
   if (alienShootTimer >= shootInterval && aliveAliens.length > 0) {
     alienShootTimer = 0;
     const shooter = aliveAliens[Math.floor(Math.random() * aliveAliens.length)];
-    alienBullets.push({ x: shooter.x + shooter.w / 2 - 2, y: shooter.y + shooter.h, w: 4, h: CHAR_H });
+    alienBullets.push({ x: shooter.x + shooter.w / 2 - 2, y: shooter.y + shooter.h, w: 4, h: 10 });
   }
 
   // Move alien bullets
@@ -375,25 +430,27 @@ function gameOver() {
 }
 
 // ── Render ──
-function drawAscii(art, x, y, color) {
+function drawSprite(sprite, x, y, color) {
   ctx.fillStyle = color;
-  ctx.font = CHAR_H + 'px Courier New';
-  ctx.textBaseline = 'top';
-  for (let i = 0; i < art.length; i++) {
-    ctx.fillText(art[i], x, y + i * CHAR_H);
+  for (let r = 0; r < sprite.length; r++) {
+    for (let c = 0; c < sprite[r].length; c++) {
+      if (sprite[r][c]) {
+        ctx.fillRect(x + c * PX, y + r * PX, PX, PX);
+      }
+    }
   }
 }
 
 function getExplosionFrame(timer, maxTimer) {
   const progress = 1 - (timer / maxTimer);
-  const idx = Math.min(Math.floor(progress * EXPLOSION_FRAMES.length), EXPLOSION_FRAMES.length - 1);
-  return EXPLOSION_FRAMES[idx];
+  const idx = Math.min(Math.floor(progress * EXPLODE_FRAMES.length), EXPLODE_FRAMES.length - 1);
+  return EXPLODE_FRAMES[idx];
 }
 
-function getAlienArt(type) {
+function getAlienSprite(type) {
   const frame = Math.floor(frameCount / 20) % 2;
-  if (type === 'A') return frame === 0 ? ALIEN_ART_A1 : ALIEN_ART_A2;
-  return frame === 0 ? ALIEN_ART_B1 : ALIEN_ART_B2;
+  if (type === 'A') return frame === 0 ? ALIEN_A1 : ALIEN_A2;
+  return frame === 0 ? ALIEN_B1 : ALIEN_B2;
 }
 
 function render() {
@@ -404,42 +461,40 @@ function render() {
   // Draw Player 1
   if (player1 && player1.alive) {
     if (player1.exploding > 0) {
-      drawAscii(getExplosionFrame(player1.exploding, 120), player1.x, player1.y, '#0f0');
+      drawSprite(getExplosionFrame(player1.exploding, 120), player1.x, player1.y, '#f80');
     } else {
-      drawAscii(SHIP_ART_P1, player1.x, player1.y, '#0f0');
+      drawSprite(SHIP_P1, player1.x, player1.y, '#0f0');
     }
   }
 
   // Draw Player 2
   if (player2 && player2.alive) {
     if (player2.exploding > 0) {
-      drawAscii(getExplosionFrame(player2.exploding, 120), player2.x, player2.y, '#0f0');
+      drawSprite(getExplosionFrame(player2.exploding, 120), player2.x, player2.y, '#f80');
     } else {
-      drawAscii(SHIP_ART_P2, player2.x, player2.y, '#0f0');
+      drawSprite(SHIP_P2, player2.x, player2.y, '#0ff');
     }
   }
 
   // Draw aliens
   for (const a of aliens) {
     if (a.exploding > 0) {
-      drawAscii(getExplosionFrame(a.exploding, 20), a.x, a.y, '#0f0');
+      drawSprite(getExplosionFrame(a.exploding, 20), a.x, a.y, '#f80');
     } else if (a.alive) {
-      drawAscii(getAlienArt(a.type), a.x, a.y, '#0f0');
+      drawSprite(getAlienSprite(a.type), a.x, a.y, a.type === 'A' ? '#f0f' : '#ff0');
     }
   }
 
   // Draw player bullets
+  ctx.fillStyle = '#0f0';
   for (const b of playerBullets) {
-    ctx.fillStyle = '#0f0';
-    ctx.font = CHAR_H + 'px Courier New';
-    ctx.textBaseline = 'top';
-    ctx.fillText('|', b.x, b.y);
+    ctx.fillRect(b.x, b.y, 3, 10);
   }
 
   // Draw alien bullets
-  ctx.fillStyle = '#0f0';
+  ctx.fillStyle = '#f44';
   for (const b of alienBullets) {
-    ctx.fillText('!', b.x, b.y);
+    ctx.fillRect(b.x, b.y, 3, 10);
   }
 }
 
